@@ -45,7 +45,7 @@ The overall system architecture consists of three core components:
 Make sure you have Python installed alongside the following quantum computing packages:
 ```bash
 pip install qiskit matplotlib numpy
-
+```
 --------------------------------
 
 ## FFFFFFFFFFFFFFFFFFFFFFFFFFF
