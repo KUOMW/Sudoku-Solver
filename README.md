@@ -39,8 +39,6 @@ The overall system architecture consists of three core components:
 
 ---
 
-## 🚀 Setup & Execution
-
 ### Prerequisites
 Make sure you have Python installed alongside the following quantum computing packages:
 ```bash
@@ -48,10 +46,9 @@ pip install qiskit matplotlib numpy
 ```
 --------------------------------
 
-## FFFFFFFFFFFFFFFFFFFFFFFFFFF
 ## 🧠 Core Methodology & Explanation
 
-The algorithm solves the puzzle by manipulating quantum state amplitudes in a Hilbert space of dimension $N = 2^{N_{qubit}}$. It consists of three structural phases: **Initialization**, **The Oracle (Marker Circuit)**, and **The Diffuser**.
+The algorithm solves the puzzle by manipulating quantum state amplitudes in a Hilbert space of dimension $N = 2^{N_{qubit} + N_check}$. It consists of three structural phases: **Initialization**, **The Oracle (Marker Circuit)**, and **The Diffuser**.
 
 ### 1. State Initialization
 The circuit begins by preparing a uniform superposition of all possible assignments for the unknown cells. Applying a Hadamard gate ($H$) to all $N_{qubit}$ cell qubits creates an equal probability distribution across all possible states:
@@ -61,15 +58,20 @@ $$\lvert \psi_0 \rangle = H^{\otimes N_{qubit}} \lvert 0 \rangle^{\otimes N_{qub
 ### 2. The Oracle ($U_f$): Constraint Marking & Uncomputation
 The Oracle behaves as a phase indicator. For a given state $\lvert x \rangle$, if the assignment satisfies all Sudoku conditions (row, column, and block uniqueness), the oracle flips its phase:
 
-$$U_f \lvert x \rangle = (-1)^{f(x)} \lvert x \rangle \quad \text{where} \quad f(x) = \begin{cases} 1 & \text{if } x \text{ is the valid solution} \\ 0 & \text{otherwise} \end{cases}$$
+$$U_f \lvert x \rangle = (-1)^{f(x)} \lvert x \rangle \quad \text{where} \quad f(x) = 
+\begin{cases} 
+    1 & \text{if } x \text{ is the valid solution} \\
+    0 & \text{otherwise} 
+\end{cases}$$
 
 #### Behind the Code: How `match_gate` and `complement_4_gate` Work
 To achieve this without huge, unmanageable multi-controlled gates, the implementation breaks constraints down locally:
 
 * **Local State Matching (`complement_4_gate`):**
   Sudoku constraints dictate what numbers must fill the remaining blanks. The `complement_4_gate(a)` determines what bit flips ($X$ gates) are required to change a specific target number $a$ into the binary state $\lvert 11 \rangle$.
+  e.g.: a = 1 (binary:01), then need to add "10" to make it to be "11"
 * **Permutation Checking (`match_gate`):**
-  The oracle loops through all valid permutations of the missing numbers. For each permutation, it temporarily transforms the qubits using `complement_4_gate`. If the current quantum state matches that specific valid permutation, the target qubits all become $\lvert 11 \rangle$.
+  The oracle loops through all valid permutations of the missing numbers. For each permutation, it temporarily transforms the qubits using `complement_4_gate`. If the current quantum state matches that specific valid permutation, the target qubits all become $\lvert 11...1 \rangle$.
 * **Ancilla Multi-Controlled X ($MCX$):**
   When a row, column, or block constraint is perfectly satisfied, an auxiliary ancilla qubit is flipped to $\lvert 1 \rangle$. Once all individual ancillas are tripped, a final phase-kickback is triggered via an $MCX$ gate wrapped in Hadamard gates on the primary flag qubit:
   $$\lvert - \rangle = \frac{\lvert 0 \rangle - \lvert 1 \rangle}{\sqrt{2}}$$
@@ -79,7 +81,7 @@ To achieve this without huge, unmanageable multi-controlled gates, the implement
 ### 3. The Diffuser ($D$): Inversion About the Mean
 The diffuser applies a reflection operator around the uniform superposition state $\lvert \psi_0 \rangle$. Geometrically, this amplifies states with a negative phase (the solution marked by the oracle) and attenuates states with a positive phase (the incorrect paths):
 
-$$D = 2\lvert \psi_0 \rangle \langle \psi_0 \vert - I = H^{\otimes n} (2\lvert 0 \rangle \langle 0 \vert - I) H^{\otimes n}$$
+$$D = 2\lvert \psi_0 \rangle \langle \psi_0 \vert - I = H^{\otimes N_{qubit}} (2\lvert 0 \rangle \langle 0 \vert - I) H^{\otimes N_{qubit}}$$
 
 In circuit architecture, this is achieved by sandwiching a multi-controlled $Z$ operation (or an $MCX$ with $H$ gates on the target qubit) between layers of $X$ and $H$ gates across the entire cell register.
 
