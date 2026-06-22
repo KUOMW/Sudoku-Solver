@@ -48,7 +48,7 @@ pip install qiskit matplotlib numpy
 
 ## 🧠 Core Methodology & Explanation
 
-The algorithm solves the puzzle by manipulating quantum state amplitudes in a Hilbert space of dimension $N = 2^{N_{qubit} + N_check}$. It consists of three structural phases: **Initialization**, **The Oracle (Marker Circuit)**, and **The Diffuser**.
+The algorithm solves the puzzle by manipulating quantum state amplitudes in a Hilbert space of dimension $N = 2^{N_{qubit} + N_{check}}$. It consists of three structural phases: **Initialization**, **The Oracle (Marker Circuit)**, and **The Diffuser**.
 
 ### 1. State Initialization
 The circuit begins by preparing a uniform superposition of all possible assignments for the unknown cells. Applying a Hadamard gate ($H$) to all $N_{qubit}$ cell qubits creates an equal probability distribution across all possible states:
@@ -68,7 +68,7 @@ $$U_f \lvert x \rangle = (-1)^{f(x)} \lvert x \rangle \quad \text{where} \quad f
 To achieve this without huge, unmanageable multi-controlled gates, the implementation breaks constraints down locally:
 
 * **Local State Matching (`complement_4_gate`):**
-  Sudoku constraints dictate what numbers must fill the remaining blanks. The `complement_4_gate(a)` determines what bit flips ($X$ gates) are required to change a specific target number $a$ into the binary state $\lvert 11 \rangle$.
+  Sudoku constraints dictate what numbers must fill the remaining blanks. The `complement_4_gate(a)` determines what bit flips ($X$ gates) are required to change a specific target number $a$ into the binary state $\lvert 11 \rangle$.  
   e.g.: a = 1 (binary:01), then need to add "10" to make it to be "11"
 * **Permutation Checking (`match_gate`):**
   The oracle loops through all valid permutations of the missing numbers. For each permutation, it temporarily transforms the qubits using `complement_4_gate`. If the current quantum state matches that specific valid permutation, the target qubits all become $\lvert 11...1 \rangle$.
