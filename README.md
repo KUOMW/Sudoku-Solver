@@ -16,9 +16,9 @@ This project focuses on a $4 \times 4$ grid ($n=2$), representing cell values us
 - **Unknown Cells:** Represented as quantum states that are solved using phase estimation and amplitude amplification (Grover's Diffusion).
 - **Qubit Encoding:** Each missing cell value ($1$ to $4$) is encoded using 2 qubits:
   - `00` $\rightarrow 4$
-  - `01` $\rightarrow 3$
+  - `01` $\rightarrow 1$
   - `10` $\rightarrow 2$
-  - `11` $\rightarrow 1$
+  - `11` $\rightarrow 3$
 
 ---
 
